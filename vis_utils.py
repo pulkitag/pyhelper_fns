@@ -140,6 +140,10 @@ class MyAnimation(object):
 
 def draw_square_on_im(im, sq, width=4, col='w'):
   x1, y1, x2, y2 = sq
+  x1 = max(0, int(x1))
+  y1 = max(0, int(y1))
+  x2 = int(np.floor(x2))
+  y2 = int(np.floor(y2))
   h = im.shape[0]
   w = im.shape[1]
   if col == 'w':
@@ -153,9 +157,9 @@ def draw_square_on_im(im, sq, width=4, col='w'):
   #Bottom line
   im[max(0,int(y2-width/2)):min(h, y2+int(width/2)),x1:x2,:] = col
   #Left line
-  im[y1:y2, max(0,int(x1-width/2)):min(h, x1+int(width/2))] = col
+  im[y1:y2, max(0,int(x1-width/2)):min(w, x1+int(width/2))] = col
   #Right line
-  im[y1:y2, max(0,int(x2-width/2)):min(h, x2+int(width/2))] = col
+  im[y1:y2, max(0,int(x2-width/2)):min(w, x2+int(width/2))] = col
   return im
 
 
