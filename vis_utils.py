@@ -8,6 +8,7 @@ import copy
 import os
 import pdb
 from matplotlib import gridspec
+from functools import reduce
 
 ##
 #Plot n images
@@ -131,11 +132,69 @@ class MyAnimation(object):
       if is_stop:
         break
       
-  def _display(self, pixels):
+  def _display(self, pixels, deltaT=1e-3):
     self.image_obj.set_data(pixels)
     self.fig.canvas.restore_region(self.bg)
     self.ax.draw_artist(self.image_obj)
     self.fig.canvas.blit(self.ax.bbox)
+    plt.pause(deltaT)
+
+class MyAnimationMulti(object):
+  """Animate mulitple subplots simultaneously"""
+  def __init__(self, vis_func, height=200, width=200, 
+               subPlotShape=(2,1), numPlots=None,
+               isIm=None):
+    """
+    Args:
+      isIm: which of plots are going to be images
+    """
+    self.vis_func = vis_func
+    if subPlotShape is None:
+      assert numPlots is not None
+      N = np.ceil(np.sqrt(len(numPlots)))
+      subPlotShape = (N,N)
+    else:
+      numPlots = reduce(lambda x, y: x*y, subPlotShape)
+    if isIm is None:
+      isIm = numPlots * [True]
+    self.fig        = plt.figure()
+    self.axs        = []
+    self.image_objs = []
+    self.bgs        = []
+    im = np.zeros((height, width, 3)).astype(np.uint8) 
+    for i in range(numPlots):
+      shp = subPlotShape + (i+1,)
+      aa  = self.fig.add_subplot(*shp)
+      plt.show(block=False)
+      #aa.autoscale(False)
+      self.axs.append(aa)
+      if isIm[i]:
+        self.image_objs.append(self.axs[i].imshow(im))
+      self.fig.canvas.draw()
+      self.bgs.append(self.fig.canvas.copy_from_bbox(self.axs[i].bbox))
+      
+
+  def __del__(self):
+    plt.close(self.fig)
+
+  def _display(self, pixels):
+    """
+    Args:
+      pixels: list of either images
+              or objects of the type
+              matplotlib.lines.Line2D etc.
+    """
+    assert type(pixels) in [list, tuple]
+    for i, pix in enumerate(pixels):
+      self.fig.canvas.restore_region(self.bgs[i])
+      if type(pix) is np.ndarray:
+        self.image_objs[i].set_data(pix)
+        self.axs[i].draw_artist(self.image_objs[i])
+      else:
+        self.axs[i].clear()
+        plt.pause(0.01)
+        self.axs[i].draw_artist(pix)
+      self.fig.canvas.blit(self.axs[i].bbox)
 
 
 def draw_square_on_im(im, sq, width=4, col='w'):
