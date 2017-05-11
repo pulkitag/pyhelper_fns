@@ -139,11 +139,12 @@ class MyAnimation(object):
     self.fig.canvas.blit(self.ax.bbox)
     plt.pause(deltaT)
 
+
 class MyAnimationMulti(object):
   """Animate mulitple subplots simultaneously"""
   def __init__(self, vis_func, height=200, width=200, 
-               subPlotShape=(2,1), numPlots=None,
-               isIm=None):
+               subPlotShape=None, numPlots=None,
+               isIm=None, axTitles=None):
     """
     Args:
       isIm: which of plots are going to be images
@@ -151,28 +152,42 @@ class MyAnimationMulti(object):
     self.vis_func = vis_func
     if subPlotShape is None:
       assert numPlots is not None
-      N = np.ceil(np.sqrt(len(numPlots)))
+      N = np.ceil(np.sqrt(numPlots)).astype(np.int)
       subPlotShape = (N,N)
     else:
       numPlots = reduce(lambda x, y: x*y, subPlotShape)
     if isIm is None:
       isIm = numPlots * [True]
+    if axTitles is None:
+      axTitles = ['plot %d' % (i+1) for i in range(numPlots)]
+    else:
+      assert len(axTitles) == numPlots, len(axTitles)
     self.fig        = plt.figure()
     self.axs        = []
     self.image_objs = []
+    self.line_objs  = []
     self.bgs        = []
-    im = np.zeros((height, width, 3)).astype(np.uint8) 
+    self.numPlots   = numPlots 
+    self.axTitles   = axTitles
+    im = np.zeros((height, width, 3)).astype(np.uint8)
+    plt.show(block=False)
     for i in range(numPlots):
       shp = subPlotShape + (i+1,)
       aa  = self.fig.add_subplot(*shp)
-      plt.show(block=False)
-      #aa.autoscale(False)
       self.axs.append(aa)
       if isIm[i]:
         self.image_objs.append(self.axs[i].imshow(im))
+        self.line_objs.append([])
+      else:
+        #self.axs[i].autoscale(True)
+        self.line_objs.append(self.axs[i].plot(range(200), 200*[0])[0])
+        #self.axs[i].autoscale(True)
+        self.image_objs.append([])
+      if axTitles is not None:
+        self.axs[i].set_title(axTitles[i])
+        self.axs[i].autoscale(True)
       self.fig.canvas.draw()
       self.bgs.append(self.fig.canvas.copy_from_bbox(self.axs[i].bbox))
-      
 
   def __del__(self):
     plt.close(self.fig)
@@ -190,11 +205,15 @@ class MyAnimationMulti(object):
       if type(pix) is np.ndarray:
         self.image_objs[i].set_data(pix)
         self.axs[i].draw_artist(self.image_objs[i])
+        self.fig.canvas.blit(self.axs[i].bbox)
       else:
         self.axs[i].clear()
-        plt.pause(0.01)
-        self.axs[i].draw_artist(pix)
-      self.fig.canvas.blit(self.axs[i].bbox)
+        self.axs[i].set_title(self.axTitles[i])
+        self.axs[i].plot(*pix)
+        #self.line_objs[i].set_data(*pix)
+        #self.axs[i].draw_artist(self.line_objs[i])
+    plt.pause(0.01)
+
 
 
 def draw_square_on_im(im, sq, width=4, col='w'):
