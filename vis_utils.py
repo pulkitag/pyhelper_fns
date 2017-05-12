@@ -146,12 +146,20 @@ def draw_square_on_im(im, sq, width=4, col='w'):
   y2 = int(np.floor(y2))
   h = im.shape[0]
   w = im.shape[1]
-  if col == 'w':
+  if col in ['w' or 'white']:
+    #white
     col = (255 * np.ones((1,1,3))).astype(np.uint8)
-  elif col == 'r':
-    col = np.zeros((1,1,3))
+  elif col in ['r' or 'red']:
+    col = np.zeros((1,1,3), dtype=np.uint8)
     col[0,0,0] = 255
-    col =  col.astype(np.uint8)
+  elif col in ['g' or 'green']:
+    col = np.zeros((1,1,3), dtype=np.uint8)
+    col[0,0,1] = 255
+  elif col in ['b' or 'blue']:
+    col = np.zeros((1,1,3), dtype=np.uint8)
+    col[0,0,2] = 255
+  elif col in ['black']:
+    col = np.zeros((1,1,3), dtype=np.uint8)
   #Top Line
   im[max(0,int(y1-width/2)):min(h, y1+int(width/2)),x1:x2,:] = col
   #Bottom line
