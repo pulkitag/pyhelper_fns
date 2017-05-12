@@ -230,6 +230,10 @@ def draw_square_on_im(im, sq, width=4, col='w'):
   elif col in ['r', 'red']:
     col = np.zeros((1,1,3), dtype=np.uint8)
     col[0,0,0] = 255
+  elif col in ['yellow']:
+    col = np.zeros((1,1,3), dtype=np.uint8)
+    col[0,0,0] = 255
+    col[0,0,1] = 255
   elif col in ['g', 'green']:
     col = np.zeros((1,1,3), dtype=np.uint8)
     col[0,0,1] = 255
