@@ -216,7 +216,7 @@ class MyAnimationMulti(object):
 
 
 
-def draw_square_on_im(im, sq, width=4, col='w'):
+def draw_square_on_im(im, sq, width=4, col='k'):
   x1, y1, x2, y2 = sq
   x1 = max(0, int(x1))
   y1 = max(0, int(y1))
@@ -224,24 +224,34 @@ def draw_square_on_im(im, sq, width=4, col='w'):
   y2 = int(np.floor(y2))
   h = im.shape[0]
   w = im.shape[1]
-  if col in ['w', 'white']:
-    #white
-    col = (255 * np.ones((1,1,3))).astype(np.uint8)
+  if col in ['k', 'black']:
+    col = np.zeros((1,1,3), dtype=np.uint8)
   elif col in ['r', 'red']:
     col = np.zeros((1,1,3), dtype=np.uint8)
     col[0,0,0] = 255
-  elif col in ['yellow']:
-    col = np.zeros((1,1,3), dtype=np.uint8)
-    col[0,0,0] = 255
-    col[0,0,1] = 255
   elif col in ['g', 'green']:
     col = np.zeros((1,1,3), dtype=np.uint8)
     col[0,0,1] = 255
   elif col in ['b', 'blue']:
     col = np.zeros((1,1,3), dtype=np.uint8)
     col[0,0,2] = 255
-  elif col in ['black']:
+  elif col in ['y', 'yellow']:
     col = np.zeros((1,1,3), dtype=np.uint8)
+    col[0,0,0] = 255
+    col[0,0,1] = 255
+  elif col in ['m', 'magenta']:
+    col = np.zeros((1,1,3), dtype=np.uint8)
+    col[0,0,0] = 255
+    col[0,0,2] = 255
+  elif col in ['c', 'cyan']:
+    col = np.zeros((1,1,3), dtype=np.uint8)
+    col[0,0,1] = 255
+    col[0,0,2] = 255
+  elif col in ['w', 'white']:
+    col = np.zeros((1,1,3), dtype=np.uint8)
+    col[0,0,0] = 255
+    col[0,0,1] = 255
+    col[0,0,2] = 255
   #Top Line
   im[max(0,int(y1-width/2)):min(h, y1+int(width/2)),x1:x2,:] = col
   #Bottom line
@@ -251,5 +261,3 @@ def draw_square_on_im(im, sq, width=4, col='w'):
   #Right line
   im[y1:y2, max(0,int(x2-width/2)):min(w, x2+int(width/2))] = col
   return im
-
-
