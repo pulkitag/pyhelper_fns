@@ -6,9 +6,11 @@ import scipy.misc as scm
 import matplotlib.pyplot as plt
 import copy
 import os
-import pdb
+from os import path as osp
+import pdb, time, shutil
 from matplotlib import gridspec
 from functools import reduce
+from pyhelper_fns import path_utils
 
 ##
 #Plot n images
@@ -214,6 +216,34 @@ class MyAnimationMulti(object):
         #self.axs[i].draw_artist(self.line_objs[i])
     plt.pause(0.01)
 
+
+##
+#Make a video
+class VideoMaker(object):
+  def __init__(self, vidName='video.mp4'):
+    self.vidName = vidName
+    path_utils.mkdirs_in_path(vidName)       
+    self.tmpDir = '_tmp_vid_%s_%d' % (int(time.time()), np.random.randint(50000))
+    path_utils.mkdir(self.tmpDir)
+    self.count  = 0
+
+  def save_frame(self, im):
+    """
+    save im as the frame
+    """ 
+    imName = osp.join(self.tmpDir, '%d.png' % self.count)
+    self.count += 1
+    scm.imsave(imName, im)
+
+  def compile_video(self, fps=30, imSz=None):
+    cmd = "ffmpeg -i {0}/%d.png -b 10000k -c:v libx264".format(self.tmpDir)
+    if fps:
+      cmd = "{0} -r {1}".format(cmd, int(fps))
+    if imSz:
+      w, h = imSz
+      cmd = "{0} -s {1}x{2}".format(cmd, int(w), int(h))
+    os.system("{0} {1}".format(cmd, self.vidName))
+    shutil.rmtree(self.tmpDir) 
 
 
 def draw_square_on_im(im, sq, width=4, col='w'):
