@@ -1,6 +1,7 @@
 ## @package vis_utils
 #  Miscellaneous Functions for visualizations
 #
+from math import sqrt, ceil
 import numpy as np
 import scipy.misc as scm
 import matplotlib.pyplot as plt
@@ -261,3 +262,36 @@ def draw_square_on_im(im, sq, width=4, col='k'):
   #Right line
   im[y1:y2, max(0,int(x2-width/2)):min(w, x2+int(width/2))] = col
   return im
+
+def visualize_grid(data, ubound=255.0, padding=1):
+  """
+  Arrange a 4D tensor of image data in a grid for easy visualization.
+
+  Args:
+  data: Data of shape (n, c, h, w)
+  ubound: Output grid will have values scaled to the range [0, ubound]
+  padding: The number of blank pixels between elements of the grid
+
+  Returns:
+  grid: an image with each of the n (h, w, c) images arranged in a grid.
+  """
+  (n, c, h, w) = data.shape
+  grid_size = int(ceil(sqrt(n)))
+  grid_height = h * grid_size + padding * (grid_size - 1)
+  grid_width = w * grid_size + padding * (grid_size - 1)
+  grid = np.zeros((grid_height, grid_width, c))
+  next_idx = 0
+  y0, y1 = 0, h
+  for y in xrange(grid_size):
+    x0, x1 = 0, w
+    for x in xrange(grid_size):
+      if next_idx < n:
+        img = data[next_idx, ...].transpose(1, 2, 0)
+        low, high = np.min(img), np.max(img)
+        grid[y0:y1, x0:x1] = ubound * (img - low) / (high - low)
+        next_idx += 1
+      x0 += w + padding
+      x1 += w + padding
+    y0 += w + padding
+    y1 += w + padding
+  return grid
