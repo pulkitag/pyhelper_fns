@@ -13,6 +13,21 @@ from matplotlib import gridspec
 from functools import reduce
 from pyhelper_fns import path_utils
 
+class Subplot(object):
+  """
+  In many cases just a handle to axis is required
+  """
+  def __init__(self):
+    self.fig = plt.figure()
+    self.ax = self.fig.add_subplot(111)
+    plt.ion()
+    
+  def plot_image(self, im, title=None):
+    self.ax.imshow(im)
+    if title is not None:
+      self.fig.canvas.set_window_title(title)
+    plt.show()
+
 ##
 #Plot n images
 def plot_n_ims(ims, fig=None, titleStr='', figTitle='',
