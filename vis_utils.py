@@ -28,6 +28,47 @@ class Subplot(object):
       self.fig.canvas.set_window_title(title)
     plt.show()
 
+
+class SubplotMulti(object):
+  """
+  Create multiple place-holder axes
+  """
+  def __init__(self, numPlots=2, subPlotShape=None, axTitles=None):
+    #determine the shape in which plots are to be made   
+    plt.ion()
+    if subPlotShape is None:
+      assert numPlots is not None
+      N = np.ceil(np.sqrt(numPlots)).astype(np.int)
+      subPlotShape = (N,N)
+    else:
+      numPlots = reduce(lambda x, y: x*y, subPlotShape)
+    #default tiltes of axes
+    if axTitles is None:
+      axTitles = ['plot %d' % (i+1) for i in range(numPlots)]
+    else:
+      assert len(axTitles) == numPlots, len(axTitles)
+    #prepare the figure
+    self.fig        = plt.figure()
+    self.axs        = []
+    self.numPlots   = numPlots 
+    self.axTitles   = axTitles
+    for i in range(numPlots):
+      shp = subPlotShape + (i+1,)
+      aa  = self.fig.add_subplot(*shp)
+      self.axs.append(aa)
+      if axTitles is not None:
+        self.axs[i].set_title(axTitles[i])
+        self.axs[i].autoscale(True)
+        
+  def plot_image(self, ims, title=None):
+    assert type(ims) in [list, tuple], 'ims is not in correct format'
+    for i, im in enumerate(ims):
+      self.axs[i].imshow(im)
+    if title is not None:
+      self.fig.canvas.set_window_title(title)
+    plt.show()
+
+
 ##
 #Plot n images
 def plot_n_ims(ims, fig=None, titleStr='', figTitle='',
@@ -197,9 +238,7 @@ class MyAnimationMulti(object):
         self.image_objs.append(self.axs[i].imshow(im))
         self.line_objs.append([])
       else:
-        #self.axs[i].autoscale(True)
         self.line_objs.append(self.axs[i].plot(range(200), 200*[0])[0])
-        #self.axs[i].autoscale(True)
         self.image_objs.append([])
       if axTitles is not None:
         self.axs[i].set_title(axTitles[i])
@@ -307,6 +346,7 @@ def draw_square_on_im(im, sq, width=4, col='k'):
   #Right line
   im[y1:y2, max(0,int(x2-width/2)):min(w, x2+int(width/2))] = col
   return im
+
 
 def visualize_grid(data, ubound=255.0, padding=1):
   """
