@@ -116,25 +116,22 @@ def rotate_box_around_center(x1, y1, x2, y2, theta, center, **kwargs):
     kwargs['imH'] = 2 * cyRot
     imH = 2 * cy
     _y1, _y2 = imH - y1, imH - y2
-    _y1, _y2 = _y1 - cyRot, _y2 - cyRot
-    y1,  y2  = 2*cyRot - _y1, 2*cyRot - _y2   
+    y1, y2 = _y1 - cy, _y2 - cy
   else:
     y1, y2 = y1 - cy, y2 - cy
-  #Rotate the box now
-  x1, y1, x2, y2 = rotate_box(x1, y1, x2, y2, theta, **kwargs)
+  #Rotate the box now, coordinates are wrt to origin (not top-left of image)
+  x1, y1, x2, y2 = rotate_box(x1, y1, x2, y2, theta, imCoords=False, imH=None)
   #Recenter
-  x1, x2 = x1 + cx, x2 + cx
+  x1, x2 = x1 + cxRot, x2 + cxRot
   if 'imCoords' in kwargs and kwargs['imCoords']:
     imH = 2 * cyRot
-    _y1, _y2 = imH - y1, imH - y2
-    _y1, _y2 = _y1 + cyRot, _y2 + cyRot
-    y1,  y2 = imH - _y1, imH - _y2 
+    y1,  y2 = imH - (y1 + cyRot), imH - (y2 + cyRot) 
   else:
     y1, y2 = y1 + cyRot, y2 + cyRot
   return x1, y1, x2, y2
   
 def get_test(rot=-90):
-  if rot == -90:
+  if rot == [-90, 90]:
     imH, imW = 524, 640
     bboxs = [[248.093353495, 310.126402835, 363.097447045, 447.094726891],
           [404.6338720575185, 3.8798152359500024, 470.34534383500056, 164.1069113020001],
