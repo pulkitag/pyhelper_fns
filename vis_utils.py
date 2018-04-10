@@ -349,12 +349,12 @@ def draw_square_on_im(im, sq, col='k', conf=None):
     fontFile = osp.join(osp.dirname(__file__), 'tom-thumb.pil')
     font = ImageFont.load(fontFile)
     textW, textH = draw.textsize(conf, font=font)
-    draw.rectangle([x1, y1-textH-1, x1+textW, y1], outline=col, fill=col)
+    draw.rectangle([x1, y1, x1+textW, y1+textH], outline=col, fill=col)
     if col in [(0, 0, 0), (255, 0, 0), (0, 255, 0), (0, 0, 255)]:
         textCol = (255, 255, 255)
     else:
         textCol = (0, 0, 0)
-    draw.text([x1+1, y1-textH], conf, fill=textCol, font=font)
+    draw.text([x1+1, y1+1], conf, fill=textCol, font=font)
 
   return np.array(im)
 
