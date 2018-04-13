@@ -5,6 +5,7 @@ from math import sqrt, ceil
 import numpy as np
 import scipy.misc as scm
 import matplotlib.pyplot as plt
+from PIL import Image, ImageDraw, ImageFont
 import copy
 import os
 from os import path as osp
@@ -301,51 +302,61 @@ class VideoMaker(object):
     shutil.rmtree(self.tmpDir) 
 
 
-def draw_square_on_im(im, sq, width=4, col='k'):
+def draw_square_on_im(im, sq, col='k', conf=None):
+  """
+  Draw a box on an image.
+
+  Args:
+  im: an np.ndarray image
+  sq: box coords [x1, y1, x2, y2]
+  col: box color
+  conf: if not None, box confidence
+
+  Returns:
+  im: the processed image
+  """
+  im = Image.fromarray(im, 'RGB')
+
+  w, h = im.size
   x1, y1, x2, y2 = sq
   x1 = max(0, int(x1))
   y1 = max(0, int(y1))
-  x2 = int(np.floor(x2))
-  y2 = int(np.floor(y2))
-  h = im.shape[0]
-  w = im.shape[1]
+  x2 = min(int(x2), w-1)
+  y2 = min(int(y2), h-1)
+
   if col in ['k', 'black']:
-    col = np.zeros((1,1,3), dtype=np.uint8)
-  elif col in ['r', 'red']:
-    col = np.zeros((1,1,3), dtype=np.uint8)
-    col[0,0,0] = 255
-  elif col in ['g', 'green']:
-    col = np.zeros((1,1,3), dtype=np.uint8)
-    col[0,0,1] = 255
+    col = (0, 0, 0)
   elif col in ['b', 'blue']:
-    col = np.zeros((1,1,3), dtype=np.uint8)
-    col[0,0,2] = 255
-  elif col in ['y', 'yellow']:
-    col = np.zeros((1,1,3), dtype=np.uint8)
-    col[0,0,0] = 255
-    col[0,0,1] = 255
-  elif col in ['m', 'magenta']:
-    col = np.zeros((1,1,3), dtype=np.uint8)
-    col[0,0,0] = 255
-    col[0,0,2] = 255
+    col = (0, 0, 255)
+  elif col in ['g', 'green']:
+    col = (0, 255, 0)
+  elif col in ['r', 'red']:
+    col = (255, 0, 0)
   elif col in ['c', 'cyan']:
-    col = np.zeros((1,1,3), dtype=np.uint8)
-    col[0,0,1] = 255
-    col[0,0,2] = 255
+    col = (0, 255, 255)
+  elif col in ['m', 'magenta']:
+    col = (255, 0, 255)
+  elif col in ['y', 'yellow']:
+    col = (255, 255, 0)
   elif col in ['w', 'white']:
-    col = np.zeros((1,1,3), dtype=np.uint8)
-    col[0,0,0] = 255
-    col[0,0,1] = 255
-    col[0,0,2] = 255
-  #Top Line
-  im[max(0,int(y1-width/2)):min(h, y1+int(width/2)),x1:x2,:] = col
-  #Bottom line
-  im[max(0,int(y2-width/2)):min(h, y2+int(width/2)),x1:x2,:] = col
-  #Left line
-  im[y1:y2, max(0,int(x1-width/2)):min(w, x1+int(width/2))] = col
-  #Right line
-  im[y1:y2, max(0,int(x2-width/2)):min(w, x2+int(width/2))] = col
-  return im
+    col = (255, 255, 255)
+  
+  draw = ImageDraw.Draw(im)
+  draw.rectangle([x1, y1, x2, y2], outline=col)
+
+  if conf is not None:
+    conf = '{:.3f}'.format(conf)
+    fontFile = osp.join(osp.dirname(__file__), 'bitbuntu.pil')
+    font = ImageFont.load(fontFile)
+    textW, textH = draw.textsize(conf, font=font)
+    draw.rectangle([x1, y1, x1+textW-1, y1+textH-3], outline=col, fill=col)
+    if col in [(0, 0, 0), (255, 0, 0), (0, 255, 0), (0, 0, 255)]:
+        textCol = (255, 255, 255)
+    else:
+        textCol = (0, 0, 0)
+    draw.text([x1, y1-1], conf, fill=textCol, font=font)
+
+  return np.array(im)
 
 
 def visualize_grid(data, ubound=255.0, padding=1):
