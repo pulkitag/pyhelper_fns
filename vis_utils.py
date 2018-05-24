@@ -325,37 +325,35 @@ def draw_square_on_im(im, sq, col='k', conf=None, fontsize=20):
   y2 = min(int(y2), h-1)
 
   if col in ['k', 'black']:
-    col = (0, 0, 0)
-  elif col in ['b', 'blue']:
-    col = (0, 0, 255)
-  elif col in ['g', 'green']:
-    col = (0, 255, 0)
-  elif col in ['r', 'red']:
-    col = (255, 0, 0)
-  elif col in ['c', 'cyan']:
-    col = (0, 255, 255)
-  elif col in ['m', 'magenta']:
-    col = (255, 0, 255)
-  elif col in ['y', 'yellow']:
-    col = (255, 255, 0)
+    colHSL = 'hsl(0, 0%, 0%)'
   elif col in ['w', 'white']:
-    col = (255, 255, 255)
+    colHSL = 'hsl(0, 0%, 100%)'
+  elif col in ['r', 'red']:
+    colHSL = 'hsl(0, 40%, 50%)'
+  elif col in ['y', 'yellow']:
+    colHSL = 'hsl(50, 40%, 50%)'
+  elif col in ['g', 'green']:
+    colHSL = 'hsl(110, 40%, 50%)'
+  elif col in ['b', 'blue']:
+    colHSL = 'hsl(180, 40%, 50%)'
+  elif col in ['v', 'violet']:
+    colHSL = 'hsl(260, 40%, 50%)'
   
   draw = ImageDraw.Draw(im)
-  draw.rectangle([x1, y1, x2, y2], outline=col)
-  draw.rectangle([x1+1, y1+1, x2-1, y2-1], outline=col)
+  draw.rectangle([x1, y1, x2, y2], outline=colHSL)
+  draw.rectangle([x1+1, y1+1, x2-1, y2-1], outline=colHSL)
 
   if conf is not None:
     conf = '{:.3f}'.format(conf)
-    fontFile = osp.join(osp.dirname(__file__), 'hack.ttf')
+    fontFile = osp.join(osp.dirname(__file__), 'arial.ttf')
     font = ImageFont.truetype(fontFile, size=fontsize)
     textW, textH = draw.textsize(conf, font=font)
-    draw.rectangle([x1, y1, x1+textW, y1+textH], outline=col, fill=col)
-    if col in [(0, 0, 0), (255, 0, 0), (0, 255, 0), (0, 0, 255)]:
-        textCol = (255, 255, 255)
+    draw.rectangle([x1, y1, x1+textW, y1+textH], outline=colHSL, fill=colHSL)
+    if col in ['k', 'black']:
+        textColHSL = 'hsl(0, 0%, 100%)'
     else:
-        textCol = (0, 0, 0)
-    draw.text([x1, y1], conf, fill=textCol, font=font)
+        textColHSL = 'hsl(0, 0%, 0%)'
+    draw.text([x1, y1], conf, fill=textColHSL, font=font)
 
   return np.array(im)
 
