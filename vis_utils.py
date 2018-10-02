@@ -315,15 +315,13 @@ def draw_square_on_im(im, sq, col='k', conf=None, fontsize=20):
   Returns:
   im: the processed image
   """
-  im = Image.fromarray(im, 'RGB')
-
+  im = Image.fromarray(im[:, :, [2, 1, 0]], 'RGB')
   w, h = im.size
   x1, y1, x2, y2 = sq
   x1 = max(0, int(x1))
   y1 = max(0, int(y1))
   x2 = min(int(x2), w-1)
   y2 = min(int(y2), h-1)
-
   if col in ['k', 'black']:
     colHSL = 'hsl(0, 0%, 0%)'
   elif col in ['w', 'white']:
@@ -338,11 +336,9 @@ def draw_square_on_im(im, sq, col='k', conf=None, fontsize=20):
     colHSL = 'hsl(180, 40%, 50%)'
   elif col in ['v', 'violet']:
     colHSL = 'hsl(260, 40%, 50%)'
-  
   draw = ImageDraw.Draw(im)
   draw.rectangle([x1, y1, x2, y2], outline=colHSL)
   draw.rectangle([x1+1, y1+1, x2-1, y2-1], outline=colHSL)
-
   if conf is not None:
     conf = '{:.3f}'.format(conf)
     fontFile = osp.join(osp.dirname(__file__), 'arial.ttf')
@@ -354,8 +350,7 @@ def draw_square_on_im(im, sq, col='k', conf=None, fontsize=20):
     else:
         textColHSL = 'hsl(0, 0%, 0%)'
     draw.text([x1, y1], conf, fill=textColHSL, font=font)
-
-  return np.array(im)
+  return np.array(im)[:, :, [2, 1, 0]]
 
 
 def visualize_grid(data, ubound=255.0, padding=1):

@@ -1,5 +1,4 @@
-import scipy.misc as scm
-import PIL
+import numpy as np
 from PIL import Image
 
 def imrotate(im, angle, interp='bilinear', expand=True):
@@ -14,11 +13,10 @@ def imrotate(im, angle, interp='bilinear', expand=True):
   Returns:
     np.array of rotated image
   """
-  #Convert to PIL.Image format
-  im = scm.toimage(im)
+  im = Image.fromarray(im[:, :, [2, 1, 0]], 'RGB')
   interpolation = {}
   interpolation['bilinear'] = Image.BILINEAR
   if interp not in interpolation:
     raise KeyError('Interpolation of type {} is invalid'.format(interp))
   imr = im.rotate(angle, interpolation[interp], expand=expand)
-  return scm.fromimage(imr)
+  return np.array(im)[:, :, [2, 1, 0]]
