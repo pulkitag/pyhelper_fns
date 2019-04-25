@@ -29,14 +29,11 @@ class ConfigHelper(object):
     return self.opts.keys()
 
   def update_from_yaml(self, fName):
-    print ('I AM HERE')
     if os.path.exists(fName):
-      print ('LOCATION 2')
       with open(fName, 'rb') as f:
         dat = yaml.load(f)
         for k in dat.keys():
           dat[k] = str(dat[k])
-        print (dat)
         self._opts.update(dat)
       
 
